@@ -29,7 +29,9 @@ async function createConnection() {
   }
 }
 createConnection();
-
+app.get("/",async(req,res)=>{
+  res.send("Welcome to password reset flow app");
+})
 app.post("/signup", async (req, res) => {
   console.log(req.body);
 
