@@ -136,6 +136,7 @@ async function Forgot({username}){
   }
 
   app.post("/forgot/reset",async (request, response) => {
+    console.log(request.body);
     const { email,password,token } = request.body;
     const userReset = await Reset({email,password,token});
     if (userReset==="found"){
@@ -147,10 +148,13 @@ async function Forgot({username}){
   });
 
    async function Reset({ email,password,token }) {
+     console.log(email,"shit");
+    const client = await createConnection();
     const User = await client
       .db("Password")
       .collection("PassDB")
       .findOne({ username: email });
+      console.log(User)
     if(User){
       try{
       const pass=jwt.verify(token,process.env.temp_token+email);
@@ -161,10 +165,11 @@ async function Forgot({username}){
         .db("Password")
         .collection("PassDB")
         .updateOne(
-          { _id: ObjectId(User._id) },
+          { username: email },
           {
             $set: {
               password:hpassword,
+              temp:"no"
             },
           }
         );
