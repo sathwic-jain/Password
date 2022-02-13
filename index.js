@@ -153,7 +153,7 @@ async function Forgot({username}){
       .findOne({ username: email });
     if(User){
       try{
-      const pass=jwt.verify(token,email);
+      const pass=jwt.verify(token,process.env.temp_token+email);
       }catch{return "wrong token"}
       {
         const hpassword = await genPassword(password);
