@@ -68,7 +68,9 @@ app.post("/login", async (req, res) => {
       .db("Password")
       .collection("PassDB")
       .findOne({ username: username });
-      console.log(user);
+      console.log(user,"here");
+      if(!user) res.status(401).send({message:"invalid user"})
+      else{
     const pass = await bcrypt.compare(password, user.password);
     console.log(pass);
     if (pass && user.temp === "yes") {
@@ -77,13 +79,14 @@ app.post("/login", async (req, res) => {
         process.env.temp_token + user.username
       );
       res.send({ message: "success", token: token, temp:"yes" });
-    }else if(pass){
+    }else if(pass ){
         const token = jwt.sign(
             { username: user.username },
             process.env.token + user.username
           );
           res.send({ message: "success", token: token, temp:"no" });
     } else res.status(401).send({ message: "error" });
+  }
   });
 
   app.post("/forgot",async (request, response) => {
