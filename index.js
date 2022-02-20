@@ -100,16 +100,54 @@ app.post("/login", async (req, res) => {
     else response.status(401).send({message:"invalid credentials"});
   });
 
+// async function Forgot({username}){
+//   const client = await createConnection();
+//     const user=await client.db("Password").collection("PassDB").findOne({username:username});
+//     if(user){
+//         const temporary=tempPass();
+//         console.log(temporary);
+//         const password_temp=await genPassword(temporary);
+//         await client.db("Password").collection("PassDB").updateOne({username:username},{$set:{temp:"yes",password:password_temp}});  
+        
+//       const token = jwt.sign({ id: user._id }, user.username);
+//       const transporter = nodemailer.createTransport({
+//         service: 'gmail',
+//         auth: {
+//           user: process.env.user,
+//           pass: process.env.pass
+//         }
+//       })
+      
+//       const mailOptions = {
+//         from: 'testing.00k@gmail.com',
+//         to: `${username}`,
+//         subject: `Temporary password`,
+//         text: "Your temporary password is "+`${temporary}`,
+//         replyTo: `test`
+//       }
+//       transporter.sendMail(mailOptions, function(err, res) {
+//         if (err) {
+//           console.error('there was an error: ', err);
+//         } else {
+//           console.log('here is the res: ', res)
+//         }
+//       })
+//       return token;
+//     }
+    
+//     else return null;
+//   }
+
 async function Forgot({username}){
   const client = await createConnection();
     const user=await client.db("Password").collection("PassDB").findOne({username:username});
     if(user){
         const temporary=tempPass();
         console.log(temporary);
-        const password_temp=await genPassword(temporary);
-        await client.db("Password").collection("PassDB").updateOne({username:username},{$set:{temp:"yes",password:password_temp}});  
+        // const password_temp=await genPassword(temporary);
+        await client.db("Password").collection("PassDB").updateOne({username:username},{$set:{temp:"yes",password:temporary}});  
         
-      const token = jwt.sign({ id: user._id }, user.username);
+      const token = jwt.sign({ id: user._id }, temporary,{expiresIn:"10h"});
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -121,8 +159,8 @@ async function Forgot({username}){
       const mailOptions = {
         from: 'testing.00k@gmail.com',
         to: `${username}`,
-        subject: `Temporary password`,
-        text: "Your temporary password is "+`${temporary}`,
+        subject: "Reset password link",
+        text: "http://localhost:3000/Reset/"+token,
         replyTo: `test`
       }
       transporter.sendMail(mailOptions, function(err, res) {
@@ -137,6 +175,7 @@ async function Forgot({username}){
     
     else return null;
   }
+
 
   app.post("/forgot/reset",async (request, response) => {
     console.log(request.body);
@@ -160,7 +199,7 @@ async function Forgot({username}){
       console.log(User)
     if(User){
       try{
-      const pass=jwt.verify(token,process.env.temp_token+email);
+      const pass=jwt.verify(token,User.password);
       }catch{return "wrong token"}
       {
         const hpassword = await genPassword(password);
