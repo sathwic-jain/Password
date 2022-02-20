@@ -47,8 +47,6 @@ app.post("/signup", async (req, res) => {
     .findOne({ username: username });
   if (user) res.status(405).send({ message: "You already exist with us" });
   else {
-    // const act_token = Activate({ username });
-    // if (act_token) {
       await client
       .db("Password")
       .collection("PassDB")
@@ -144,7 +142,6 @@ async function Forgot({username}){
     if(user){
         const temporary=tempPass();
         console.log(temporary);
-        // const password_temp=await genPassword(temporary);
         await client.db("Password").collection("PassDB").updateOne({username:username},{$set:{temp:"yes",password:temporary}});  
         
       const token = jwt.sign({ id: user._id }, temporary,{expiresIn:"10h"});
@@ -185,8 +182,8 @@ async function Forgot({username}){
       console.log(userReset);
       response.send({message:"Password changed successfully"});
   }
-    else if(userReset==="not found") response.status(401).send({message:"invalid credentials,check the email-id provided or contact the administrator"});
-    else if(userReset==="wrong token") response.status(402).send({message:"Try changing your own password buddy!!😒"})
+    else if(userReset==="not found") response.status(401).send({message:"invalid credentials"});
+    else if(userReset==="wrong token") response.status(402).send({message:"Try forgot password again"})
   });
 
    async function Reset({ email,password,token }) {
