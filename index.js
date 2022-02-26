@@ -157,7 +157,7 @@ async function Forgot({username}){
         from: 'testing.00k@gmail.com',
         to: `${username}`,
         subject: "Reset password link",
-        text: "http://localhost:3000/Reset/"+token,
+        text: "https://nervous-pare-98939b.netlify.app/Reset/"+token,
         replyTo: `test`
       }
       transporter.sendMail(mailOptions, function(err, res) {
